@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Anmey</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="logo">Anmey</h1>
+        <form class="form" id="form">
+            <input class="input" type="text" placeholder="Name" id="myname" required>
+            <input class="input" type="text" placeholder="Message" id="message" required>
+            <button class="button" type="submit">Send Message</button>
+        </form>
+        <div class="messageArea" id="messageArea"></div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const form = document.getElementById('form');
+        const myname = document.getElementById('myname');
+        const message = document.getElementById('message');
+        const messageArea = document.getElementById('messageArea');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const username = myname.value.trim();
+            const chatMessage = message.value.trim();
+
+            if (!username) {
+                alert('Please enter a name.');
+                return;
+            }
+
+            if (!chatMessage) {
+                alert('Please enter a message.');
+                return;
+            }
+
+            // Emit the message to the server.
+            socket.emit('send message', { user: username, text: chatMessage });
+            message.value = ''; // Clear the message input.
+        });
+
+        socket.on('send message', (data) => {
+            // Display the message in the message area.
+            const chatContent = document.createElement('p');
+            chatContent.classList.add('message');
+            chatContent.innerHTML = `<span class="username">${data.user}:</span> ${data.text}`;
+            messageArea.appendChild(chatContent);
+        });
+    </script>
+</body>
+</html>
